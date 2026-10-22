@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AI token usage tracker – Options</title>
+  <style>
+    :root { color-scheme: light dark; --muted: #646b73; --accent: #10a37f; --danger: #d0352b; }
+    @media (prefers-color-scheme: dark) { :root { --muted: #9aa0a6; --accent: #19c37d; --danger: #f2766d; } }
+    body { font: 13px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 16px; min-width: 420px; }
+    h2 { font-size: 14px; margin: 18px 0 6px; }
+    p.help { color: var(--muted); margin: 4px 0 8px; }
+    input[type="url"], input[type="text"] { width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit; }
+    label.check { display: flex; gap: 8px; align-items: flex-start; }
+    button { font: inherit; padding: 6px 12px; margin-top: 14px; }
+    #status { margin-left: 8px; }
+    #status.ok { color: var(--accent); }
+    #status.err { color: var(--danger); }
+  </style>
+</head>
+<body>
+  <h2>Data source</h2>
+  <p class="help">
+    By default the extension reads the usage figures shown on
+    <code>chatgpt.com/settings/usage</code> in your own signed-in browser session.
+    No credentials are stored and no private APIs are called.
+  </p>
+
+  <h2>Authorized usage endpoint (optional)</h2>
+  <p class="help">
+    Only set this if you have an officially supported or explicitly authorized endpoint that returns
+    your usage as JSON, for example
+    <code>{"plan": "plus", "limits": [{"period": "monthly", "remaining_percent": 72, "reset_at": "2026-11-01T00:00:00Z"}]}</code>
+    or <code>{"weekly": {"remaining_percent": 72, "reset_at": "2026-10-27T09:00:00Z"}}</code>.
+    The background worker fetches it every 15 minutes with your browser's cookies. Leave it empty to disable.
+  </p>
+  <input id="endpoint" type="url" placeholder="https://…" spellcheck="false">
+
+  <h2>Tracking server</h2>
+  <p class="help">
+    After every refresh the latest usage is sent to <code>&lt;server&gt;/api/chat-gpt</code>.
+    Enter <code>host:port</code> (<code>http://</code> is assumed) or a full URL. Default: <code>127.0.0.1:3000</code>.
+  </p>
+  <input id="server-url" type="text" placeholder="127.0.0.1:3000" spellcheck="false">
+
+  <h2>Scheduled refresh</h2>
+  <label class="check">
+    <input id="background-tab" type="checkbox">
+    <span>
+      Open the usage page in an inactive tab during scheduled refreshes when no usage tab is open.
+      <span class="help" style="display:block;color:var(--muted)">Off by default. A manual Refresh always does this.</span>
+    </span>
+  </label>
+
+  <button id="save" type="button">Save</button><span id="status" role="status"></span>
+
+  <h2>Error log</h2>
+  <p class="help">
+    Errors are written to the browser console and kept here (last 500).
+    To also write them to <code>logs/error.log</code> in the project directory, run
+    <code>npm run logs</code> in the project folder. Errors logged while it isn't running are written once it starts.
+  </p>
+  <p id="log-count" class="help"></p>
+  <button id="download-log" type="button">Download log</button>
+  <button id="clear-log" type="button">Clear log</button>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

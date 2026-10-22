@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AI token usage tracker</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="header">
+    <h1>AI Usage Tracker</h1>
+    <button id="options" type="button" class="icon" title="Options" aria-label="Options">⚙</button>
+  </header>
+
+  <main id="providers" class="providers"></main>
+
+  <footer class="footer muted small">Auto-refresh every 15 min</footer>
+
+  <!-- Shared card shell: summary (always visible) + expandable details. -->
+  <template id="card-template">
+    <article class="provider-card">
+      <div class="summary" role="button" tabindex="0" aria-expanded="false">
+        <div class="summary-top">
+          <span class="p-icon"></span>
+          <span class="p-name"></span>
+          <span class="chevron" aria-hidden="true"></span>
+        </div>
+        <div class="summary-bottom">
+          <div class="mini-usage">
+            <div class="meter thin"><div class="meter-fill"></div></div>
+            <span class="mini-value muted small"></span>
+          </div>
+          <span class="conn"><span class="dot"></span><span class="conn-text"></span></span>
+        </div>
+      </div>
+      <!-- Sibling of .summary so toggle clicks never expand/collapse the card. -->
+      <label class="switch">
+        <input type="checkbox" role="switch">
+        <span class="slider" aria-hidden="true"></span>
+      </label>
+      <div class="details" hidden></div>
+    </article>
+  </template>
+
+  <!-- ChatGPT details: account, plan and one block per usage limit. -->
+  <template id="details-chatgpt">
+    <section class="banner error-banner" role="alert" hidden>
+      <p class="error-message"></p>
+      <button class="link-button error-action" type="button" hidden></button>
+    </section>
+
+    <dl class="info">
+      <dt>Account</dt>
+      <dd class="account">–</dd>
+      <dt>Plan</dt>
+      <dd class="plan">–</dd>
+      <dt>Connection</dt>
+      <dd class="connection">–</dd>
+    </dl>
+
+    <section class="empty" hidden>
+      <p>No usage data yet.</p>
+      <p class="muted">Log in to ChatGPT, then press <strong>Refresh</strong> or open the usage page.</p>
+    </section>
+
+    <section class="empty no-limits" hidden>
+      <p class="no-limits-text">The usage page shows no usage limits for this account.</p>
+      <p class="muted">Limits depend on your plan. Open the usage page to check.</p>
+    </section>
+
+    <div class="usage limits" hidden></div>
+
+    <p class="updated muted small"></p>
+    <div class="actions">
+      <button type="button" class="primary refresh">Refresh</button>
+      <button type="button" class="open-page">Open usage page</button>
+    </div>
+  </template>
+
+  <!-- One usage limit. The plan decides which periods exist (hourly, weekly,
+       monthly, …); the longest one comes first as the main allowance. -->
+  <template id="limit-template">
+    <section class="limit card">
+      <p class="label">
+        <span class="limit-label"></span>
+        <span class="period-chip"></span>
+      </p>
+      <div class="figure">
+        <span class="big remaining-percent">–</span>
+        <span class="muted">remaining</span>
+      </div>
+      <div class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+        <div class="meter-fill"></div>
+      </div>
+      <p class="muted remaining-count" hidden></p>
+
+      <dl class="reset">
+        <dt>Next reset</dt>
+        <dd>
+          <span class="reset-absolute">Unknown</span>
+          <span class="reset-relative muted"></span>
+        </dd>
+      </dl>
+    </section>
+  </template>
+
+  <!-- Placeholder details for providers without an integration yet. -->
+  <template id="details-placeholder">
+    <p class="muted placeholder-text"></p>
+  </template>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

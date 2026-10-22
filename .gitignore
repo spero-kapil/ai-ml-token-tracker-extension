@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output (npm run package)
+dist/
+*.zip
+*.crx
+*.pem
+
+# Error log written by npm run logs
+logs/
+*.log
+
+# Python (scripts/make_icons.py)
+__pycache__/
+*.pyc
+
+# Environment
+.env
+.env.*
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
