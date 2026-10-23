@@ -1,6 +1,6 @@
 // Sends each provider's latest usage to the tracking server (SERVER_CONFIG and
 // the `serverUrl` setting):
-//   POST http://<serverUrl>/api/<path>  { provider, account_name, plan_type, data }
+//   POST http://<serverUrl>/api/<path>  { provider, email_id, plan_type, data }
 //
 // Adding a provider means adding its endpoint to SERVER_CONFIG.endpoints and a
 // payload builder to PAYLOAD_BUILDERS. A builder takes the provider's stored
@@ -46,7 +46,7 @@ export function buildChatGptPayload(state) {
 
   return {
     provider: 'chatgpt',
-    account_name: accountName(data) || state.profile?.account?.name || null,
+    email_id: accountName(data) || state.profile?.account?.name || null,
     plan_type: normalizePlan(data.plan)?.id || state.profile?.plan?.id || null,
     data: usage
   };

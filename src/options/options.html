@@ -31,14 +31,14 @@
     your usage as JSON, for example
     <code>{"plan": "plus", "limits": [{"period": "monthly", "remaining_percent": 72, "reset_at": "2026-11-01T00:00:00Z"}]}</code>
     or <code>{"weekly": {"remaining_percent": 72, "reset_at": "2026-10-27T09:00:00Z"}}</code>.
-    The background worker fetches it every 15 minutes with your browser's cookies. Leave it empty to disable.
+    The background worker fetches it every <span id="refresh-minutes">15</span> minutes with your browser's cookies. Leave it empty to disable.
   </p>
   <input id="endpoint" type="url" placeholder="https://…" spellcheck="false">
 
   <h2>Tracking server</h2>
   <p class="help">
     After every refresh the latest usage is sent to <code>&lt;server&gt;/api/chat-gpt</code>.
-    Enter <code>host:port</code> (<code>http://</code> is assumed) or a full URL. Default: <code>127.0.0.1:3000</code>.
+    Enter <code>host:port</code> (<code>http://</code> is assumed) or a full URL. Default: <code id="default-server-url">127.0.0.1:3000</code>.
   </p>
   <input id="server-url" type="text" placeholder="127.0.0.1:3000" spellcheck="false">
 

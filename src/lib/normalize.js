@@ -101,7 +101,7 @@ export function normalizeEndpointPayload(payload) {
   const accountRaw = pick(root, ['account', 'user']);
   const accountName = isObject(accountRaw)
     ? pick(accountRaw, ['name', 'display_name', 'email'])
-    : accountRaw ?? pick(root, ['account_name', 'name', 'email']);
+    : accountRaw ?? pick(root, ['email_id', 'account_name', 'name', 'email']);
 
   return {
     limits,

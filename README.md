@@ -43,7 +43,7 @@ The extension does **not** bypass authentication or call undocumented private AP
 | Source | When it is used | How |
 | --- | --- | --- |
 | **Usage page (default)** | Always available | `src/content/content.js` runs on `chatgpt.com` and, on `/settings/usage`, reads the usage limits, account name and plan the page already shows to you in your signed-in session. |
-| **Authorized endpoint (optional)** | Only when you set a URL in Options | `src/background.js` calls `fetch()` with `credentials: 'include'` every 15 minutes. Enter a URL here only if it is officially supported or you have explicit authorization to use it. Host permission is requested at runtime for that origin only. |
+| **Authorized endpoint (optional)** | Only when you set a URL in Options | `src/background.js` calls `fetch()` with `credentials: 'include'` on each refresh (`REFRESH_PERIOD_MINUTES` in `.env`). Enter a URL here only if it is officially supported or you have explicit authorization to use it. Host permission is requested at runtime for that origin only. |
 
 Each refresh tries these in order:
 
@@ -55,7 +55,7 @@ Also, whenever you visit the usage page yourself, the extension stores the figur
 
 ## Sending usage to the server
 
-After every refresh (the 15-minute alarm, startup, and manual **Refresh**), `src/lib/server-sync.js` POSTs the latest data for each enabled provider to `<server URL>/api/<endpoint>`. The server URL is set in *Options → Tracking server* (default `127.0.0.1:3000`). It takes `host:port` (`http://` is assumed) or a full URL such as `https://usage.example.com`. On save, the extension asks for permission for that host, unless it is `127.0.0.1`, which is already allowed. Endpoints are listed in `SERVER_CONFIG.endpoints` (`src/lib/constants.js`). Only ChatGPT is configured:
+After every refresh (the alarm from `.env`, startup, and manual **Refresh**), `src/lib/server-sync.js` POSTs the latest data for each enabled provider to `<server URL>/api/<endpoint>`. The server URL is set in *Options → Tracking server* (default from `DEFAULT_SERVER_URL` in `.env`). It takes `host:port` (`http://` is assumed) or a full URL such as `https://usage.example.com`. On save, the extension asks for permission for that host, unless it is `127.0.0.1`, which is already allowed. Endpoints are listed in `SERVER_CONFIG.endpoints` (`src/lib/constants.js`). Only ChatGPT is configured:
 
 ```
 POST http://127.0.0.1:3000/api/chat-gpt
@@ -63,7 +63,7 @@ Content-Type: application/json
 
 {
   "provider": "chatgpt",
-  "account_name": "test@example.com",
+  "email_id": "test@example.com",
   "plan_type": "free",
   "data": {
     "monthly_usage": 10,
@@ -82,7 +82,7 @@ To add a provider, add its `{ method, path }` to `SERVER_CONFIG.endpoints` and a
 ## Storage and schedule
 
 - State is stored in `chrome.storage.local` under `usageState`, settings under `settings` and the error log under `errorLog`.
-- A `chrome.alarms` alarm fires every **15 minutes**. Chrome may delay it if the browser is asleep or closed.
+- A `chrome.alarms` alarm fires every **`REFRESH_PERIOD_MINUTES`** (default 15). Chrome may delay it if the browser is asleep or closed.
 - The toolbar badge shows the remaining percentage of the main allowance. It is green above 30%, orange at 30% or below, red at 10% or below, and grey when stale.
 
 ## Error handling
@@ -95,7 +95,7 @@ To add a provider, add its `{ method, path }` to `SERVER_CONFIG.endpoints` and a
 | No usage tab and no endpoint (scheduled refresh) | `NO_SOURCE` error |
 | Endpoint permission missing | `PERMISSION` error with an "Open options" action |
 | ChatGPT toggle off | No refreshes and no badge; the card shows *Disabled* |
-| Data older than 30 min, or the main allowance's reset time already passed | Shown as **Stale**; the last known values are kept |
+| Data older than two refresh intervals, or the main allowance's reset time already passed | Shown as **Stale**; the last known values are kept |
 
 If a refresh fails, the popup keeps the last good values and labels them as stale.
 
@@ -118,11 +118,15 @@ Each entry is one line, `<ISO time> [ERROR] [<scope>] <CODE>: <message>`, follow
 ## Development
 
 ```bash
+cp .env.example .env  # then set DEFAULT_SERVER_URL and REFRESH_PERIOD_MINUTES
+npm run env           # write src/lib/env.js from .env (reload the unpacked extension after)
 npm test              # parser, normalizer, usage helpers and log format tests (Node 20+)
 npm run logs          # write extension errors to logs/error.log
 npm run icons         # regenerate icons/ (Python 3, no dependencies)
 npm run package       # zip for the Chrome Web Store (create dist/ first)
 ```
+
+`DEFAULT_SERVER_URL` and `REFRESH_PERIOD_MINUTES` live in `.env`. Chrome cannot read that file directly, so `npm run env` copies them into `src/lib/env.js`. Test and package run that step first.
 
 ### If ChatGPT changes the usage page
 
@@ -143,6 +147,7 @@ scripts/log-server.js      local receiver that writes logs/error.log
 src/background.js          service worker: alarms, sources, storage, badge
 src/content/usage-parser.js text parser (shared with tests)
 src/content/content.js     reads the usage page in the user's session
+.env / .env.example        DEFAULT_SERVER_URL and REFRESH_PERIOD_MINUTES (`npm run env` writes src/lib/env.js)
 src/lib/                   constants, storage, endpoint normalizer, usage/plan helpers, error logger, server sync
 src/popup/                 popup UI (provider cards; registry in providers.js)
 src/options/               options page

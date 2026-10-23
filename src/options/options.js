@@ -1,4 +1,4 @@
-import { SERVER_CONFIG, STORAGE_KEYS } from '../lib/constants.js';
+import { REFRESH_PERIOD_MINUTES, SERVER_CONFIG, STORAGE_KEYS } from '../lib/constants.js';
 import { formatLogEntry } from '../lib/log-format.js';
 import { getLogEntries, installGlobalErrorHandlers, logError } from '../lib/logger.js';
 import { parseServerUrl } from '../lib/server-sync.js';
@@ -11,6 +11,10 @@ const serverInput = document.getElementById('server-url');
 const backgroundTab = document.getElementById('background-tab');
 const status = document.getElementById('status');
 const logCount = document.getElementById('log-count');
+
+document.getElementById('refresh-minutes').textContent = String(REFRESH_PERIOD_MINUTES);
+document.getElementById('default-server-url').textContent = SERVER_CONFIG.defaultServerUrl;
+serverInput.placeholder = SERVER_CONFIG.defaultServerUrl;
 
 function showStatus(text, ok) {
   status.textContent = text;

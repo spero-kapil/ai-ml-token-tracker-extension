@@ -1,9 +1,11 @@
+import { DEFAULT_SERVER_URL, REFRESH_PERIOD_MINUTES } from './env.js';
+
+export { REFRESH_PERIOD_MINUTES };
 export const USAGE_PAGE_URL = 'https://chatgpt.com/settings/usage?tab=overview';
 export const USAGE_PAGE_MATCH = 'https://chatgpt.com/settings/usage*';
 export const LOGIN_PAGE_URL = 'https://chatgpt.com/auth/login';
 
 export const ALARM_NAME = 'usage-refresh';
-export const REFRESH_PERIOD_MINUTES = 15;
 
 // Data older than two missed refresh cycles is flagged as stale.
 export const STALE_AFTER_MS = 2 * REFRESH_PERIOD_MINUTES * 60 * 1000;
@@ -22,8 +24,7 @@ export const LOG_FLUSH_TIMEOUT_MS = 2000;
 // <settings.serverUrl><apiPath><endpoint path>. A provider without an entry
 // here is not sent.
 export const SERVER_CONFIG = {
-  // defaultServerUrl: '127.0.0.1:3000',
-  defaultServerUrl: 'https://7d3b-137-97-116-252.ngrok-free.app',
+  defaultServerUrl: DEFAULT_SERVER_URL,
   apiPath: '/api/',
   timeoutMs: 10000,
   endpoints: {

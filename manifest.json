@@ -2,11 +2,11 @@
   "manifest_version": 3,
   "name": "AI token usage tracker extension",
   "short_name": "AI Usage Tracker",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Shows your remaining ChatGPT usage allowance for your plan's usage periods and the next reset times.",
   "minimum_chrome_version": "116",
   "permissions": ["storage", "alarms", "tabs", "scripting"],
-  "host_permissions": ["https://chatgpt.com/*", "http://127.0.0.1/*", "https://*.ngrok-free.app/*"],
+  "host_permissions": ["https://chatgpt.com/*", "http://127.0.0.1/*", "https://*.ngrok-free.app/*", "https://token-tracker.websperotech.com/*"],
   "optional_host_permissions": ["https://*/*", "http://*/*"],
   "background": {
     "service_worker": "src/background.js",

@@ -66,7 +66,7 @@ test('joins the server URL, API path and endpoint path', () => {
 test('builds the ChatGPT payload from stored state', () => {
   assert.deepEqual(buildChatGptPayload(STATE), {
     provider: 'chatgpt',
-    account_name: 'test@example.com',
+    email_id: 'test@example.com',
     plan_type: 'free',
     data: {
       '5h_usage': 40,
@@ -83,7 +83,7 @@ test('payload falls back to the sidebar profile and keeps duplicate periods apar
     data: { limits: [{ period: 'weekly', usedPercent: 1 / 3 }, { period: 'weekly', usedPercent: null }], fetchedAt: null },
     profile: { account: { name: 'Ada' }, plan: { id: 'plus', name: 'Plus' } }
   });
-  assert.equal(payload.account_name, 'Ada');
+  assert.equal(payload.email_id, 'Ada');
   assert.equal(payload.plan_type, 'plus');
   assert.equal(payload.data.weekly_usage, 0.33);
   assert.equal(payload.data.weekly_2_usage, null);
@@ -91,21 +91,23 @@ test('payload falls back to the sidebar profile and keeps duplicate periods apar
 });
 
 test('posts the payload as JSON and records success', async () => {
-  const result = await pushUsage('chatgpt', STATE);
+  const result = await pushUsage('chatgpt', STATE, { serverUrl: '127.0.0.1:3000' });
   assert.equal(result.ok, true);
   assert.equal(requests.length, 1);
   assert.equal(requests[0].url, 'http://127.0.0.1:3000/api/chat-gpt');
   assert.equal(requests[0].init.method, 'POST');
   assert.equal(requests[0].init.headers['Content-Type'], 'application/json');
-  assert.equal(JSON.parse(requests[0].init.body).plan_type, 'free');
+  const body = JSON.parse(requests[0].init.body);
+  assert.equal(body.plan_type, 'free');
+  assert.equal(body.email_id, 'test@example.com');
   assert.equal(storage.serverSync.chatgpt.error, null);
   assert.equal(typeof storage.serverSync.chatgpt.lastSuccessAt, 'number');
 });
 
 test('a failing server is recorded, logged once per distinct error, and never throws', async () => {
   respond = () => new Response('boom', { status: 500 });
-  const first = await pushUsage('chatgpt', STATE);
-  await pushUsage('chatgpt', STATE);
+  const first = await pushUsage('chatgpt', STATE, { serverUrl: '127.0.0.1:3000' });
+  await pushUsage('chatgpt', STATE, { serverUrl: '127.0.0.1:3000' });
   assert.equal(first.ok, false);
   assert.equal(first.error.code, 'SERVER');
   assert.equal(storage.serverSync.chatgpt.error.code, 'SERVER');
@@ -114,7 +116,7 @@ test('a failing server is recorded, logged once per distinct error, and never th
   globalThis.fetch = async () => {
     throw new TypeError('Failed to fetch');
   };
-  const offline = await pushUsage('chatgpt', STATE);
+  const offline = await pushUsage('chatgpt', STATE, { serverUrl: '127.0.0.1:3000' });
   assert.equal(offline.error.code, 'NETWORK');
   assert.equal(logged.length, 2);
 });

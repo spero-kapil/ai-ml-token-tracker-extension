@@ -5,9 +5,10 @@
   "description": "Chromium extension that shows remaining ChatGPT usage for each usage period of your plan and the next reset times.",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/*.test.js",
+    "env": "node scripts/sync-env.js",
+    "test": "node scripts/sync-env.js && node --test tests/*.test.js",
     "logs": "node scripts/log-server.js",
     "icons": "python3 scripts/make_icons.py",
-    "package": "zip -r dist/ai-token-usage-tracker.zip manifest.json icons src -x '*.DS_Store'"
+    "package": "node scripts/sync-env.js && zip -r dist/ai-token-usage-tracker.zip manifest.json icons src -x '*.DS_Store'"
   }
 }
